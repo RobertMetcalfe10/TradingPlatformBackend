@@ -1,11 +1,22 @@
 package com.tradingPlatform.DataObjects;
 
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+@Document(collection = "UserInfo")
 public class UserInfo {
 
+    @Field
     private String userName;
     private String publicKey;
     private Account account;
     private boolean loggedIn;
+
+    @PersistenceConstructor
+    public UserInfo(String userName){
+        this.userName = userName;
+    }
 
     private UserInfo(Builder builder) {
         userName = builder.userName;

@@ -11,5 +11,6 @@ public class Services {
     public static void main(String[] args) {
         CoinMarketCapController.main(args);
         EurekaClientApplication.main(args);
+        UserInfoController.main(args);
     }
 }

@@ -9,14 +9,9 @@ import org.jsoup.Jsoup;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-
 
 @EnableDiscoveryClient
 @SpringBootApplication
@@ -24,7 +19,7 @@ public class CoinMarketCapController {
 
     public static void main(String[] args) {
         System.setProperty("spring.config.name", "cmc");
-        SpringApplication.run(EurekaClientApplication.class, args);
+        SpringApplication.run(CoinMarketCapController.class, args);
     }
 }
 
@@ -34,6 +29,12 @@ class cmcRestController {
 
     private static String[] coinSymbols = {"ETH", "BTC", "TRX", "LTC", "BCH", "MIOTA", "XRP", "XLM"};
     private static LatestCoinInfos latestCoinInfos = new LatestCoinInfos();
+    private CMCRepository cmcRepository;
+
+
+    public cmcRestController (CMCRepository cmcRepository) {
+        this.cmcRepository = cmcRepository;
+    }
 
 
     @RequestMapping("/coinInfo")
@@ -56,6 +57,9 @@ class cmcRestController {
             coinInfoBuilder.currency("USD");
             coinInfoBuilder.price(jsonObject.get("quote").getAsJsonObject().get("USD").getAsJsonObject().get("price").getAsDouble());
             coinInfoBuilder.percentChange24hr(jsonObject.get("quote").getAsJsonObject().get("USD").getAsJsonObject().get("percent_change_24h").getAsDouble());
+
+            cmcRepository.save(coinInfoBuilder.build());
+
             return coinInfoBuilder.build().toString();
         } catch (IOException e) {
             e.printStackTrace();
@@ -101,6 +105,12 @@ class cmcRestController {
             result+=coinInfo.toString();
         }
         return result;
+    }
+
+    @RequestMapping("/symbol")
+    public String getBySymbol(@RequestParam(value = "symbol") String symbol){
+        CoinInfo coin = cmcRepository.findBySymbol(symbol);
+        return coin.toString();
     }
 
 }

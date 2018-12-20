@@ -1,11 +1,18 @@
 package com.tradingPlatform.DataObjects;
 
+import org.springframework.data.annotation.PersistenceConstructor;
+
 import java.util.ArrayList;
 
 public class Account {
 
     private double currentBalance;
     private ArrayList<Transaction> recentTransactions;
+
+    @PersistenceConstructor
+    public Account(double currentBalance) {
+        this.currentBalance = currentBalance;
+    }
 
     private Account(Builder builder) {
         currentBalance = builder.currentBalance;

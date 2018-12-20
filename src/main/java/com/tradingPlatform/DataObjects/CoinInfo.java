@@ -2,14 +2,21 @@ package com.tradingPlatform.DataObjects;
 
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
 
+@Document(collection = "CoinInfo")
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class CoinInfo implements Serializable {
 
+    @Id
     private int id;
     private String name;
+    @Field
     private String symbol;
     private int circulatingSupply;
     private String dateAdded;
@@ -17,6 +24,11 @@ public class CoinInfo implements Serializable {
     private String currency;
     private double price;
     private double percentChange24hr;
+
+    @PersistenceConstructor
+    public CoinInfo(String symbol) {
+        this.symbol = symbol;
+    }
 
     private CoinInfo(Builder builder) {
         id = builder.id;
