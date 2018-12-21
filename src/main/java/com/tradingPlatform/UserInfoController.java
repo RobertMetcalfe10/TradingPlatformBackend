@@ -3,7 +3,9 @@ package com.tradingPlatform;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mongodb.BasicDBObject;
 import com.tradingPlatform.DataObjects.Account;
+import com.tradingPlatform.DataObjects.OrderBook;
 import com.tradingPlatform.DataObjects.Transaction;
 import com.tradingPlatform.DataObjects.UserInfo;
 import org.springframework.boot.SpringApplication;
@@ -12,6 +14,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @EnableDiscoveryClient
@@ -31,10 +34,12 @@ class UserInfoRestController {
 
 
     private UserInfoRepository userInfoRepository;
+    private OrderBookRepository orderBookRepository;
 
 
-    public UserInfoRestController (UserInfoRepository userInfoRepository) {
+    public UserInfoRestController (UserInfoRepository userInfoRepository, OrderBookRepository orderBookRepository) {
         this.userInfoRepository = userInfoRepository;
+        this.orderBookRepository = orderBookRepository;
     }
 
 
@@ -51,7 +56,6 @@ class UserInfoRestController {
         System.out.println(userName);
         System.out.println(symbol);
         UserInfo userInfo = userInfoRepository.findByUserName(userName);
-        System.out.println(userInfo.getAccount().getCurrentBalance().get(symbol));
 
         return userInfo.getAccount().getCurrentBalance().get(symbol).toString();
     }
@@ -60,6 +64,7 @@ class UserInfoRestController {
     public ResponseEntity buyCoin(@RequestBody String json){
 
         JsonObject jsonObj;
+        String id = "";
         String seller = "";
         String buyer = "";
         String coinSymbol = "";
@@ -70,13 +75,14 @@ class UserInfoRestController {
         try {
             JsonParser parser = new JsonParser();
             jsonObj = parser.parse(json).getAsJsonObject();
+            id = jsonObj.get("id").getAsString();
             seller = jsonObj.get("seller").getAsString();
             buyer = jsonObj.get("buyer").getAsString();
             coinSymbol = jsonObj.get("coinSymbol").getAsString();
             amountDollar = jsonObj.get("amountDollar").getAsDouble();
             amountCoin = jsonObj.get("amountCoin").getAsDouble();
 
-            transaction = new Transaction(seller, buyer, coinSymbol, amountDollar, amountCoin);
+            transaction = new Transaction(id, seller, buyer, coinSymbol, amountDollar, amountCoin);
 
             UserInfo sellerAcc = userInfoRepository.findByUserName(seller);
             sellerAcc.getAccount().addTransaction(transaction);
@@ -86,6 +92,14 @@ class UserInfoRestController {
             buyerAcc.getAccount().addTransaction(transaction);
             buyerAcc.getAccount().removeFromBalanceOfCoin(coinSymbol, amountCoin);
 
+
+            List<OrderBook> orderBook = orderBookRepository.findAll();
+            orderBook.get(0).removeTransaction(id);
+            orderBookRepository.save(orderBook.get(0));
+
+            userInfoRepository.save(buyerAcc);
+            userInfoRepository.save(sellerAcc);
+
         } catch (JsonIOException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
@@ -93,6 +107,8 @@ class UserInfoRestController {
 
         return ResponseEntity.accepted().build();
     }
+
+
 
     @RequestMapping("/createUser")
     public void testUser(@RequestParam(value = "userName") String userName) {

@@ -1,9 +1,16 @@
 package com.tradingPlatform.DataObjects;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
 
-public class Transaction {
+import java.io.Serializable;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+public class Transaction implements Serializable {
+
+    @Id
+    private String id;
     private String seller;
     private String buyer;
     private String coinSymbol;
@@ -11,12 +18,21 @@ public class Transaction {
     private double amountCoin;
 
     @PersistenceConstructor
-    public Transaction(String seller, String buyer, String coinSymbol, double amountDollar, double amountCoin) {
+    public Transaction(String id, String seller, String buyer, String coinSymbol, double amountDollar, double amountCoin) {
+        this.id = id;
         this.seller = seller;
         this.buyer = buyer;
         this.coinSymbol = coinSymbol;
         this.amountDollar = amountDollar;
         this.amountCoin = amountCoin;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getSeller() {
