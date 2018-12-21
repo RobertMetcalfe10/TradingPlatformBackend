@@ -12,5 +12,6 @@ public class Services {
         CoinMarketCapController.main(args);
         EurekaClientApplication.main(args);
         UserInfoController.main(args);
+        OrderBookController.main(args);
     }
 }

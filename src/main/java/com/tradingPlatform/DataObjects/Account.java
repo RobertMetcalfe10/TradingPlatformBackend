@@ -4,6 +4,7 @@ import org.springframework.data.annotation.PersistenceConstructor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Account {
 
@@ -28,6 +29,35 @@ public class Account {
 
     public void addTransaction(Transaction transaction){
         recentTransactions.add(transaction);
+    }
+
+    public boolean removeFromBalanceOfCoin(String coinSymbol, double amountCoin){
+
+        for (Map.Entry<String, Double> entry : currentBalance.entrySet()){
+            if(entry.getKey().equals(coinSymbol)){
+                double amount = entry.getValue()-amountCoin;
+                if(amount>=0.0) {
+                    currentBalance.replace(entry.getKey(), amount);
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean addToBalanceOfCoin(String coinSymbol, double amountCoin){
+
+        for (Map.Entry<String, Double> entry : currentBalance.entrySet()){
+            if(entry.getKey().equals(coinSymbol)){
+                double amount = entry.getValue()+amountCoin;
+                currentBalance.replace(entry.getKey(), amount);
+                return true;
+            }
+        }
+        return false;
     }
 
     public static final class Builder {

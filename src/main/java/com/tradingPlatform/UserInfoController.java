@@ -3,16 +3,18 @@ package com.tradingPlatform;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mongodb.BasicDBObject;
 import com.tradingPlatform.DataObjects.Account;
+import com.tradingPlatform.DataObjects.OrderBook;
 import com.tradingPlatform.DataObjects.Transaction;
 import com.tradingPlatform.DataObjects.UserInfo;
-import javafx.collections.transformation.SortedList;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @EnableDiscoveryClient
@@ -26,17 +28,18 @@ public class UserInfoController {
 
 }
 
-
 @RestController
 @RequestMapping("/user")
 class UserInfoRestController {
 
 
     private UserInfoRepository userInfoRepository;
+    private OrderBookRepository orderBookRepository;
 
 
-    public UserInfoRestController (UserInfoRepository userInfoRepository) {
+    public UserInfoRestController (UserInfoRepository userInfoRepository, OrderBookRepository orderBookRepository) {
         this.userInfoRepository = userInfoRepository;
+        this.orderBookRepository = orderBookRepository;
     }
 
 
@@ -53,50 +56,63 @@ class UserInfoRestController {
         System.out.println(userName);
         System.out.println(symbol);
         UserInfo userInfo = userInfoRepository.findByUserName(userName);
-        System.out.println(userInfo.getAccount().getCurrentBalance().get(symbol));
 
         return userInfo.getAccount().getCurrentBalance().get(symbol).toString();
     }
 
     @PostMapping(value = "/buy", consumes = "application/json")
-    public ResponseEntity.BodyBuilder buyCoin(@RequestBody String json){
+    public ResponseEntity buyCoin(@RequestBody String json){
 
         JsonObject jsonObj;
+        String id = "";
         String seller = "";
         String buyer = "";
         String coinSymbol = "";
-        double amountEuro = 0.0;
+        double amountDollar = 0.0;
         double amountCoin = 0.0;
         Transaction transaction = null;
 
         try {
             JsonParser parser = new JsonParser();
             jsonObj = parser.parse(json).getAsJsonObject();
+            id = jsonObj.get("id").getAsString();
             seller = jsonObj.get("seller").getAsString();
             buyer = jsonObj.get("buyer").getAsString();
             coinSymbol = jsonObj.get("coinSymbol").getAsString();
-            amountEuro = jsonObj.get("amountDollar").getAsDouble();
+            amountDollar = jsonObj.get("amountDollar").getAsDouble();
             amountCoin = jsonObj.get("amountCoin").getAsDouble();
 
-            transaction = new Transaction(seller, buyer, coinSymbol, amountEuro, amountCoin);
+            transaction = new Transaction(id, seller, buyer, coinSymbol, amountDollar, amountCoin);
 
             UserInfo sellerAcc = userInfoRepository.findByUserName(seller);
             sellerAcc.getAccount().addTransaction(transaction);
+            sellerAcc.getAccount().addToBalanceOfCoin(coinSymbol, amountCoin);
 
             UserInfo buyerAcc = userInfoRepository.findByUserName(buyer);
             buyerAcc.getAccount().addTransaction(transaction);
+            buyerAcc.getAccount().removeFromBalanceOfCoin(coinSymbol, amountCoin);
+
+
+            List<OrderBook> orderBook = orderBookRepository.findAll();
+            orderBook.get(0).removeTransaction(id);
+            orderBookRepository.save(orderBook.get(0));
+
+            userInfoRepository.save(buyerAcc);
+            userInfoRepository.save(sellerAcc);
 
         } catch (JsonIOException e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest();
+            return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.accepted();
+        return ResponseEntity.accepted().build();
     }
+
+
 
     @RequestMapping("/createUser")
     public void testUser(@RequestParam(value = "userName") String userName) {
-        userInfoRepository.deleteAll();
+//        userInfoRepository.deleteAll();
         UserInfo.Builder userInfoBuilder = new UserInfo.Builder();
         userInfoBuilder.userName(userName)
                 .loggedIn(true)
