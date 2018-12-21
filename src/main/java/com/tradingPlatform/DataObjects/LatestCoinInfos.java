@@ -45,4 +45,13 @@ public class LatestCoinInfos implements Iterable<CoinInfo>, Serializable {
         }
     }
 
+    @Override
+    public String toString() {
+        String str="";
+        for(CoinInfo coinInfo:latestCoinInfos.values()) {
+            str+=coinInfo.getSymbol()+"\n"+coinInfo.getPrice()+"\n";
+        }
+        return str;
+    }
+
 }

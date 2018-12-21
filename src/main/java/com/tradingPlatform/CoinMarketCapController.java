@@ -36,9 +36,9 @@ class cmcRestController {
         this.cmcRepository = cmcRepository;
     }
 
-
+    @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping("/coinInfo")
-    public String coinInfo(@RequestParam(value = "coin") String coin) {
+    public CoinInfo coinInfo(@RequestParam(value = "coin") String coin) {
         try {
             Connection.Response response = Jsoup.connect("https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol="+coin)
                     .header("X-CMC_PRO_API_KEY", "3d7072b7-f645-4b86-9d8b-1ce755042b08")
@@ -60,15 +60,15 @@ class cmcRestController {
 
             cmcRepository.save(coinInfoBuilder.build());
 
-            return coinInfoBuilder.build().toString();
+            return coinInfoBuilder.build();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
-
+    @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping("/coinList")
-    public LatestCoinInfos coinList() {
+    public String coinList() {
         try {
             JsonParser parser = new JsonParser();
             for (String coinSymbol: coinSymbols) {
@@ -89,8 +89,7 @@ class cmcRestController {
                 coinInfoBuilder.percentChange24hr(jsonObject.get("quote").getAsJsonObject().get("USD").getAsJsonObject().get("percent_change_24h").getAsDouble());
                 latestCoinInfos.add(jsonObject.get("symbol").getAsString(),coinInfoBuilder.build());
             }
-
-            return latestCoinInfos;
+            return latestCoinInfos.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
