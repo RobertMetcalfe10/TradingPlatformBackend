@@ -1,16 +1,16 @@
 package com.tradingPlatform;
 
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.tradingPlatform.DataObjects.Account;
 import com.tradingPlatform.DataObjects.Transaction;
 import com.tradingPlatform.DataObjects.UserInfo;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -24,7 +24,6 @@ public class UserInfoController {
     }
 
 }
-
 
 @RestController
 @RequestMapping("/user")
@@ -57,43 +56,47 @@ class UserInfoRestController {
         return userInfo.getAccount().getCurrentBalance().get(symbol).toString();
     }
 
-    @RequestMapping("/buy")
-    public void buyCoin(@RequestParam(value = "json") String json){
+    @PostMapping(value = "/buy", consumes = "application/json")
+    public ResponseEntity buyCoin(@RequestBody String json){
 
-        JSONObject jsonObj;
+        JsonObject jsonObj;
         String seller = "";
         String buyer = "";
         String coinSymbol = "";
-        double amountEuro = 0.0;
+        double amountDollar = 0.0;
         double amountCoin = 0.0;
         Transaction transaction = null;
 
         try {
-            jsonObj = new JSONObject(json);
+            JsonParser parser = new JsonParser();
+            jsonObj = parser.parse(json).getAsJsonObject();
+            seller = jsonObj.get("seller").getAsString();
+            buyer = jsonObj.get("buyer").getAsString();
+            coinSymbol = jsonObj.get("coinSymbol").getAsString();
+            amountDollar = jsonObj.get("amountDollar").getAsDouble();
+            amountCoin = jsonObj.get("amountCoin").getAsDouble();
 
-            seller = jsonObj.getString("seller");
-            buyer = jsonObj.getString("buyer");
-            coinSymbol = jsonObj.getString("coinSymbol");
-            amountEuro = jsonObj.getDouble("amountEuro");
-            amountCoin = jsonObj.getDouble("amountCoin");
+            transaction = new Transaction(seller, buyer, coinSymbol, amountDollar, amountCoin);
 
-            transaction = new Transaction(seller, buyer, coinSymbol, amountEuro, amountCoin);
+            UserInfo sellerAcc = userInfoRepository.findByUserName(seller);
+            sellerAcc.getAccount().addTransaction(transaction);
+            sellerAcc.getAccount().addToBalanceOfCoin(coinSymbol, amountCoin);
 
-        } catch (JSONException e) {
+            UserInfo buyerAcc = userInfoRepository.findByUserName(buyer);
+            buyerAcc.getAccount().addTransaction(transaction);
+            buyerAcc.getAccount().removeFromBalanceOfCoin(coinSymbol, amountCoin);
+
+        } catch (JsonIOException e) {
             e.printStackTrace();
+            return ResponseEntity.badRequest().build();
         }
 
-        UserInfo sellerAcc = userInfoRepository.findByUserName(seller);
-        sellerAcc.getAccount().addTransaction(transaction);
-
-        UserInfo buyerAcc = userInfoRepository.findByUserName(buyer);
-        buyerAcc.getAccount().addTransaction(transaction);
-
+        return ResponseEntity.accepted().build();
     }
 
-    @RequestMapping("/test")
+    @RequestMapping("/createUser")
     public void testUser(@RequestParam(value = "userName") String userName) {
-        userInfoRepository.deleteAll();
+//        userInfoRepository.deleteAll();
         UserInfo.Builder userInfoBuilder = new UserInfo.Builder();
         userInfoBuilder.userName(userName)
                 .loggedIn(true)

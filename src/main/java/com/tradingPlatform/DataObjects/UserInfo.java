@@ -10,8 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class UserInfo {
 
-    @Id
-    private int id;
     @Field
     private String userName;
     private Account account;
