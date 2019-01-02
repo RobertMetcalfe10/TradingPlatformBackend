@@ -30,9 +30,11 @@ public class OrderBookController {
 @RequestMapping("/orderbook")
 class OrderBookRestController {
 
+    private UserInfoRepository userInfoRepository;
     private OrderBookRepository orderBookRepository;
 
-    public OrderBookRestController(OrderBookRepository orderBookRepository) {
+    public OrderBookRestController(OrderBookRepository orderBookRepository, UserInfoRepository userInfoRepository) {
+        this.userInfoRepository = userInfoRepository;
         this.orderBookRepository = orderBookRepository;
         this.orderBookRepository.save(new OrderBook());
     }
@@ -66,20 +68,27 @@ class OrderBookRestController {
             amountDollar = jsonObj.get("amountDollar").getAsDouble();
             amountCoin = jsonObj.get("amountCoin").getAsDouble();
 
-            transaction = new Transaction(id, seller, buyer, coinSymbol, amountDollar, amountCoin);
+            UserInfo sellerAcc = userInfoRepository.findByUserName(seller);
+            double value = sellerAcc.getAccount().getCurrentBalance().get(coinSymbol);
 
-            OrderBook orderBook = getOrderBook();
-            orderBook.addTransaction(transaction);
-            orderBookRepository.save(orderBook);
+            if(value > 0.0){
+                transaction = new Transaction(id, seller, buyer, coinSymbol, amountDollar, amountCoin);
 
+                OrderBook orderBook = getOrderBook();
+                orderBook.addTransaction(transaction);
+                orderBookRepository.save(orderBook);
+
+                return ResponseEntity.accepted().build();
+            }
+            else{
+                return ResponseEntity.badRequest().build();
+            }
 
         } catch (JsonIOException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
-
-        return ResponseEntity.accepted().build();
-
+//        return ResponseEntity.accepted().build();
     }
 
 
