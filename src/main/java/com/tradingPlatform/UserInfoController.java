@@ -43,11 +43,13 @@ class UserInfoRestController {
     }
 
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping("/userInfo")
     public String userInfo(@RequestParam(value = "userName") String userName) {
         return userInfoRepository.findByUserName(userName).toString();
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping("/balance")
     public String getBalance(@RequestParam Map<String,String> requestParams) {
 
@@ -60,6 +62,7 @@ class UserInfoRestController {
         return userInfo.getAccount().getCurrentBalance().get(symbol).toString();
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping(value = "/buy", consumes = "application/json")
     public ResponseEntity buyCoin(@RequestBody String json){
 
@@ -109,15 +112,16 @@ class UserInfoRestController {
     }
 
 
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping("/loginUser")
+    public void loginUser(@RequestParam(value = "userName") String userName) {
 
-    @RequestMapping("/createUser")
-    public void testUser(@RequestParam(value = "userName") String userName) {
-//        userInfoRepository.deleteAll();
-        UserInfo.Builder userInfoBuilder = new UserInfo.Builder();
-        userInfoBuilder.userName(userName)
-                .loggedIn(true)
-                .account(new Account.Builder().initBalance().updateCoin("BTC",100).build());
-        userInfoRepository.save(userInfoBuilder.build());
+            UserInfo.Builder userInfoBuilder = new UserInfo.Builder();
+            userInfoBuilder.userName(userName)
+                    .loggedIn(true)
+                    .account(new Account.Builder().initBalance().updateCoin("BTC",100).build());
+            userInfoRepository.save(userInfoBuilder.build());
+
     }
 
 }

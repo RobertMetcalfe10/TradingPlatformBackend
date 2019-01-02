@@ -43,6 +43,7 @@ class OrderBookRestController {
         return orderBook.get(0);
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping(value = "/sell", consumes = "application/json")
     public ResponseEntity sellCoin(@RequestBody String json){
         JsonObject jsonObj;
