@@ -3,7 +3,6 @@ package com.tradingPlatform;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mongodb.BasicDBObject;
 import com.tradingPlatform.DataObjects.Account;
 import com.tradingPlatform.DataObjects.OrderBook;
 import com.tradingPlatform.DataObjects.Transaction;
@@ -35,11 +34,13 @@ class UserInfoRestController {
 
     private UserInfoRepository userInfoRepository;
     private OrderBookRepository orderBookRepository;
+    private CMCRepository cmcRepository;
 
 
-    public UserInfoRestController (UserInfoRepository userInfoRepository, OrderBookRepository orderBookRepository) {
+    public UserInfoRestController (UserInfoRepository userInfoRepository, OrderBookRepository orderBookRepository, CMCRepository cmcRepository) {
         this.userInfoRepository = userInfoRepository;
         this.orderBookRepository = orderBookRepository;
+        this.cmcRepository = cmcRepository;
     }
 
 
@@ -58,6 +59,22 @@ class UserInfoRestController {
         UserInfo userInfo = userInfoRepository.findByUserName(userName);
 
         return userInfo.getAccount().getCurrentBalance().get(symbol).toString();
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping("/totalBalance")
+    public double getTotalBalance(@RequestParam(value = "userName") String userName) {
+        UserInfo userInfo = userInfoRepository.findByUserName(userName);
+        double total = 0.0;
+        for (Map.Entry<String, Double> coin : userInfo.getAccount().getCurrentBalance().entrySet()) {
+            if (coin.getKey().equals("Dollars")) {
+                total += coin.getValue();
+            } else {
+                double price = cmcRepository.findBySymbol(coin.getKey()).getPrice();
+                total += price * coin.getValue();
+            }
+        }
+        return total;
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
