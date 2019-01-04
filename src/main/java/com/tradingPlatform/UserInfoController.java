@@ -55,8 +55,6 @@ class UserInfoRestController {
 
         String userName = requestParams.get("userName");
         String symbol = requestParams.get("symbol");
-        System.out.println(userName);
-        System.out.println(symbol);
         UserInfo userInfo = userInfoRepository.findByUserName(userName);
 
         return userInfo.getAccount().getCurrentBalance().get(symbol).toString();
@@ -121,9 +119,20 @@ class UserInfoRestController {
             UserInfo.Builder userInfoBuilder = new UserInfo.Builder();
             userInfoBuilder.userName(userName)
                     .loggedIn(true)
-                    .account(new Account.Builder().initBalance().updateCoin("BTC",100).build());
+                    .account(new Account.Builder().initBalance().updateCoin("Dollars",1000).build());
             userInfoRepository.save(userInfoBuilder.build());
 
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping("/changeBalance")
+    public void changeBalance(@RequestParam Map<String,String> requestParams) {
+        String userName = requestParams.get("userName");
+        String amount = requestParams.get("amount");
+        UserInfo userInfo = userInfoRepository.findByUserName(userName);
+
+        userInfo.getAccount().changeBalance(Double.parseDouble(amount));
+        userInfoRepository.save(userInfo);
     }
 
 }
