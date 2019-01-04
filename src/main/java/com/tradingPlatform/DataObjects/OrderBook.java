@@ -11,7 +11,6 @@ import java.util.ArrayList;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class OrderBook implements Serializable {
 
-//    private Transaction transaction;
     private ArrayList<Transaction> sortedTransactions = new ArrayList<>();
     @Id
     private String id="OrderBook";

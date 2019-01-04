@@ -1,8 +1,6 @@
 package com.tradingPlatform;
 
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.tradingPlatform.DataObjects.OrderBook;
 import com.tradingPlatform.DataObjects.Transaction;
 import com.tradingPlatform.DataObjects.UserInfo;
@@ -37,7 +35,15 @@ class OrderBookRestController {
         this.orderBookRepository.save(new OrderBook());
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/transactions")
+    public String getListOfTransactions() {
+        List<OrderBook> orderBook = orderBookRepository.findAll();
+        Gson gson = new Gson();
+        return gson.toJson(orderBook.get(0));
+    }
+
+    @GetMapping("/getOrderbook")
     public OrderBook getOrderBook() {
         List<OrderBook> orderBook = orderBookRepository.findAll();
         return orderBook.get(0);
