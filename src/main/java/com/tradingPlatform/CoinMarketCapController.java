@@ -88,6 +88,7 @@ class cmcRestController {
                 coinInfoBuilder.price(jsonObject.get("quote").getAsJsonObject().get("USD").getAsJsonObject().get("price").getAsDouble());
                 coinInfoBuilder.percentChange24hr(jsonObject.get("quote").getAsJsonObject().get("USD").getAsJsonObject().get("percent_change_24h").getAsDouble());
                 latestCoinInfos.add(jsonObject.get("symbol").getAsString(),coinInfoBuilder.build());
+                cmcRepository.save(coinInfoBuilder.build());
             }
             return latestCoinInfos.toString();
         } catch (IOException e) {
