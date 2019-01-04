@@ -23,6 +23,12 @@ public class Account {
         return currentBalance;
     }
 
+    public void changeBalance(double amount) {
+        Double balance = currentBalance.get("Dollars");
+        balance += amount;
+        currentBalance.put("Dollars",balance);
+    }
+
     public ArrayList<Transaction> getRecentTransactions() {
         return recentTransactions;
     }
@@ -76,6 +82,7 @@ public class Account {
             currentBalance.put("XRP",0.0);
             currentBalance.put("BCH",0.0);
             currentBalance.put("LTC",0.0);
+            currentBalance.put("Dollars",0.0);
             return this;
         }
 
