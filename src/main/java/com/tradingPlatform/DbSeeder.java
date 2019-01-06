@@ -1,6 +1,5 @@
 package com.tradingPlatform;
 
-import com.tradingPlatform.DataObjects.CoinInfo;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

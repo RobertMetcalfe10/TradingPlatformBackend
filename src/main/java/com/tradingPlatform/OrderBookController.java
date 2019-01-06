@@ -3,11 +3,9 @@ package com.tradingPlatform;
 import com.google.gson.*;
 import com.tradingPlatform.DataObjects.OrderBook;
 import com.tradingPlatform.DataObjects.Transaction;
-import com.tradingPlatform.DataObjects.UserInfo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
