@@ -63,7 +63,7 @@ class UserInfoRestController {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping("/totalBalance")
-    public double getTotalBalance(@RequestParam(value = "userName") String userName) {
+    public String getTotalBalance(@RequestParam(value = "userName") String userName) {
         UserInfo userInfo = userInfoRepository.findByUserName(userName);
         double total = 0.0;
         for (Map.Entry<String, Double> coin : userInfo.getAccount().getCurrentBalance().entrySet()) {
@@ -74,7 +74,7 @@ class UserInfoRestController {
                 total += price * coin.getValue();
             }
         }
-        return total;
+        return Double.toString(total);
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
@@ -111,6 +111,7 @@ class UserInfoRestController {
             UserInfo buyerAcc = userInfoRepository.findByUserName(buyer);
             buyerAcc.getAccount().addTransaction(transaction);
             buyerAcc.getAccount().addToBalanceOfCoin(coinSymbol, amountCoin);
+            buyerAcc.getAccount().changeBalance(amountDollar);
             userInfoRepository.save(buyerAcc);
 
 
@@ -131,25 +132,39 @@ class UserInfoRestController {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping("/loginUser")
-    public void loginUser(@RequestParam(value = "userName") String userName) {
+    public ResponseEntity loginUser(@RequestParam(value = "userName") String userName) {
 
+        try {
             UserInfo.Builder userInfoBuilder = new UserInfo.Builder();
             userInfoBuilder.userName(userName)
                     .loggedIn(true)
                     .account(new Account.Builder().initBalance().updateCoin("Dollars",1000).build());
             userInfoRepository.save(userInfoBuilder.build());
+            return ResponseEntity.accepted().build();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.badRequest().build();
+            }
 
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping("/changeBalance")
-    public void changeBalance(@RequestParam Map<String,String> requestParams) {
-        String userName = requestParams.get("userName");
-        String amount = requestParams.get("amount");
-        UserInfo userInfo = userInfoRepository.findByUserName(userName);
+    public ResponseEntity changeBalance(@RequestParam Map<String,String> requestParams) {
 
-        userInfo.getAccount().changeBalance(Double.parseDouble(amount));
-        userInfoRepository.save(userInfo);
+        try {
+            String userName = requestParams.get("userName");
+            String amount = requestParams.get("amount");
+            UserInfo userInfo = userInfoRepository.findByUserName(userName);
+
+            userInfo.getAccount().changeBalance(Double.parseDouble(amount));
+            userInfoRepository.save(userInfo);
+            return ResponseEntity.accepted().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
 }

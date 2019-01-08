@@ -25,7 +25,7 @@ public class Account {
 
     public void changeBalance(double amount) {
         Double balance = currentBalance.get("Dollars");
-        balance += amount;
+        balance -= amount;
         currentBalance.put("Dollars",balance);
     }
 
@@ -74,14 +74,14 @@ public class Account {
         }
 
         public Builder initBalance () {
-            currentBalance.put("BTC",0.0);
-            currentBalance.put("ETH",0.0);
-            currentBalance.put("TRX",0.0);
-            currentBalance.put("XLM",0.0);
-            currentBalance.put("MIOTA",0.0);
-            currentBalance.put("XRP",0.0);
-            currentBalance.put("BCH",0.0);
-            currentBalance.put("LTC",0.0);
+            currentBalance.put("BTC",10.0);
+            currentBalance.put("ETH",10.0);
+            currentBalance.put("TRX",10.0);
+            currentBalance.put("XLM",10.0);
+            currentBalance.put("MIOTA",10.0);
+            currentBalance.put("XRP",10.0);
+            currentBalance.put("BCH",10.0);
+            currentBalance.put("LTC",10.0);
             currentBalance.put("Dollars",0.0);
             return this;
         }
