@@ -3,6 +3,7 @@ package com.tradingPlatform;
 import com.google.gson.*;
 import com.tradingPlatform.DataObjects.OrderBook;
 import com.tradingPlatform.DataObjects.Transaction;
+import com.tradingPlatform.DataObjects.UserInfo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -92,7 +93,6 @@ class OrderBookRestController {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
-//        return ResponseEntity.accepted().build();
     }
 
 
