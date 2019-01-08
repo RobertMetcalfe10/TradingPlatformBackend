@@ -103,23 +103,24 @@ class UserInfoRestController {
             transaction = new Transaction(id, seller, buyer, coinSymbol, amountDollar, amountCoin);
 
             UserInfo sellerAcc = userInfoRepository.findByUserName(seller);
-            sellerAcc.getAccount().addTransaction(transaction);
-            sellerAcc.getAccount().removeFromBalanceOfCoin(coinSymbol, amountCoin);
-            userInfoRepository.save(sellerAcc);
-
-
             UserInfo buyerAcc = userInfoRepository.findByUserName(buyer);
-            buyerAcc.getAccount().addTransaction(transaction);
-            buyerAcc.getAccount().addToBalanceOfCoin(coinSymbol, amountCoin);
-            buyerAcc.getAccount().changeBalance(amountDollar);
-            userInfoRepository.save(buyerAcc);
 
+            if(!buyerAcc.getUserName().equals(sellerAcc.getUserName())){
 
+                sellerAcc.getAccount().addTransaction(transaction);
+                sellerAcc.getAccount().removeFromBalanceOfCoin(coinSymbol, amountCoin);
+                userInfoRepository.save(sellerAcc);
+
+                buyerAcc.getAccount().addTransaction(transaction);
+                buyerAcc.getAccount().addToBalanceOfCoin(coinSymbol, amountCoin);
+                buyerAcc.getAccount().changeBalance(amountDollar);
+                userInfoRepository.save(buyerAcc);
+
+            }
 
             List<OrderBook> orderBook = orderBookRepository.findAll();
             orderBook.get(0).removeTransaction(id);
             orderBookRepository.save(orderBook.get(0));
-
 
         } catch (JsonIOException e) {
             e.printStackTrace();
