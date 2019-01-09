@@ -23,9 +23,15 @@ public class Account {
         return currentBalance;
     }
 
-    public void changeBalance(double amount) {
+    public void changeBalanceForBuyer(double amount) {
         Double balance = currentBalance.get("Dollars");
         balance -= amount;
+        currentBalance.put("Dollars",balance);
+    }
+
+    public void changeBalanceForSeller(double amount) {
+        Double balance = currentBalance.get("Dollars");
+        balance += amount;
         currentBalance.put("Dollars",balance);
     }
 

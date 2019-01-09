@@ -93,8 +93,51 @@ class cmcRestController {
             return latestCoinInfos.toString();
         } catch (IOException e) {
             e.printStackTrace();
+            coinInfoObjects();
+            return latestCoinInfos.toString();
         }
-        return null;
+    }
+
+    public void coinInfoObjects() {
+        CoinInfo.Builder coinInfoBTC = new CoinInfo.Builder();
+        coinInfoBTC.symbol("BTC").price(3855.15832672).id(1);
+        latestCoinInfos.add("BTC", coinInfoBTC.build());
+        cmcRepository.save(coinInfoBTC.build());
+
+        CoinInfo.Builder coinInfoETH = new CoinInfo.Builder();
+        coinInfoETH.symbol("ETH").price(154.212772221).id(1027);
+        latestCoinInfos.add("ETH", coinInfoETH.build());
+        cmcRepository.save(coinInfoETH.build());
+
+        CoinInfo.Builder coinInfoTRX = new CoinInfo.Builder();
+        coinInfoTRX.symbol("TRX").price(0.0216297193366).id(1958);
+        latestCoinInfos.add("TRX", coinInfoTRX.build());
+        cmcRepository.save(coinInfoTRX.build());
+
+        CoinInfo.Builder coinInfoMIOTA = new CoinInfo.Builder();
+        coinInfoMIOTA.symbol("MIOTA").price(0.376894697331).id(1720);
+        latestCoinInfos.add("MIOTA", coinInfoMIOTA.build());
+        cmcRepository.save(coinInfoMIOTA.build());
+
+        CoinInfo.Builder coinInfoLTC = new CoinInfo.Builder();
+        coinInfoLTC.symbol("LTC").price(32.3408920678).id(2);
+        latestCoinInfos.add("LTC", coinInfoLTC.build());
+        cmcRepository.save(coinInfoLTC.build());
+
+        CoinInfo.Builder coinInfoXRP = new CoinInfo.Builder();
+        coinInfoXRP.symbol("XRP").price(0.35803435642).id(52);
+        latestCoinInfos.add("XRP", coinInfoXRP.build());
+        cmcRepository.save(coinInfoXRP.build());
+
+        CoinInfo.Builder coinInfoXLM = new CoinInfo.Builder();
+        coinInfoXLM.symbol("XLM").price(0.115525502213).id(512);
+        latestCoinInfos.add("XLM", coinInfoXLM.build());
+        cmcRepository.save(coinInfoXLM.build());
+
+        CoinInfo.Builder coinInfoBCH = new CoinInfo.Builder();
+        coinInfoBCH.symbol("BCH").price(161.540193458).id(1831);
+        latestCoinInfos.add("BCH", coinInfoBCH.build());
+        cmcRepository.save(coinInfoBCH.build());
     }
 
     @RequestMapping("/latestInfo")

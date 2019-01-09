@@ -65,16 +65,17 @@ class UserInfoRestController {
     @RequestMapping("/totalBalance")
     public String getTotalBalance(@RequestParam(value = "userName") String userName) {
         UserInfo userInfo = userInfoRepository.findByUserName(userName);
-        double total = 0.0;
-        for (Map.Entry<String, Double> coin : userInfo.getAccount().getCurrentBalance().entrySet()) {
-            if (coin.getKey().equals("Dollars")) {
-                total += coin.getValue();
-            } else {
-                double price = cmcRepository.findBySymbol(coin.getKey()).getPrice();
-                total += price * coin.getValue();
-            }
-        }
-        return Double.toString(total);
+//        double total = 0.0;
+//        for (Map.Entry<String, Double> coin : userInfo.getAccount().getCurrentBalance().entrySet()) {
+//            if (coin.getKey().equals("Dollars")) {
+//                total += coin.getValue();
+//            } else {
+//                double price = cmcRepository.findBySymbol(coin.getKey()).getPrice();
+//                total += price * coin.getValue();
+//            }
+//        }
+
+        return Double.toString(userInfo.getAccount().getCurrentBalance().get("Dollars"));
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
@@ -105,22 +106,30 @@ class UserInfoRestController {
             UserInfo sellerAcc = userInfoRepository.findByUserName(seller);
             UserInfo buyerAcc = userInfoRepository.findByUserName(buyer);
 
-            if(!buyerAcc.getUserName().equals(sellerAcc.getUserName())){
+            //if buyers balance is less the price of coin, dont allow them to buy it
+            if(buyerAcc.getAccount().getCurrentBalance().get("Dollars") >= amountDollar) {
 
-                sellerAcc.getAccount().addTransaction(transaction);
-                sellerAcc.getAccount().removeFromBalanceOfCoin(coinSymbol, amountCoin);
-                userInfoRepository.save(sellerAcc);
+                //if buyer is the same as seller, remove transaction from order book but keep balances the same
+                if (!buyerAcc.getUserName().equals(sellerAcc.getUserName())) {
 
-                buyerAcc.getAccount().addTransaction(transaction);
-                buyerAcc.getAccount().addToBalanceOfCoin(coinSymbol, amountCoin);
-                buyerAcc.getAccount().changeBalance(amountDollar);
-                userInfoRepository.save(buyerAcc);
+                    sellerAcc.getAccount().addTransaction(transaction);
+                    sellerAcc.getAccount().removeFromBalanceOfCoin(coinSymbol, amountCoin);
+                    sellerAcc.getAccount().changeBalanceForSeller(amountDollar);
+                    userInfoRepository.save(sellerAcc);
+
+                    buyerAcc.getAccount().addTransaction(transaction);
+                    buyerAcc.getAccount().addToBalanceOfCoin(coinSymbol, amountCoin);
+                    buyerAcc.getAccount().changeBalanceForBuyer(amountDollar);
+                    userInfoRepository.save(buyerAcc);
+
+                }
+
+                List<OrderBook> orderBook = orderBookRepository.findAll();
+                orderBook.get(0).removeTransaction(id);
+                orderBookRepository.save(orderBook.get(0));
+            }else{
 
             }
-
-            List<OrderBook> orderBook = orderBookRepository.findAll();
-            orderBook.get(0).removeTransaction(id);
-            orderBookRepository.save(orderBook.get(0));
 
         } catch (JsonIOException e) {
             e.printStackTrace();
@@ -139,7 +148,7 @@ class UserInfoRestController {
             UserInfo.Builder userInfoBuilder = new UserInfo.Builder();
             userInfoBuilder.userName(userName)
                     .loggedIn(true)
-                    .account(new Account.Builder().initBalance().updateCoin("Dollars",1000).build());
+                    .account(new Account.Builder().initBalance().updateCoin("Dollars",10000).build());
             userInfoRepository.save(userInfoBuilder.build());
             return ResponseEntity.accepted().build();
             } catch (Exception e) {
@@ -158,7 +167,7 @@ class UserInfoRestController {
             String amount = requestParams.get("amount");
             UserInfo userInfo = userInfoRepository.findByUserName(userName);
 
-            userInfo.getAccount().changeBalance(Double.parseDouble(amount));
+            userInfo.getAccount().changeBalanceForBuyer(Double.parseDouble(amount));
             userInfoRepository.save(userInfo);
             return ResponseEntity.accepted().build();
         } catch (Exception e) {
