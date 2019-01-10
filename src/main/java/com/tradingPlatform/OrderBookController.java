@@ -74,9 +74,10 @@ class OrderBookRestController {
             amountCoin = jsonObj.get("amountCoin").getAsDouble();
 
             UserInfo sellerAcc = userInfoRepository.findByUserName(seller);
-            double value = sellerAcc.getAccount().getCurrentBalance().get(coinSymbol);
+            double totalCoinVal = sellerAcc.getAccount().getCurrentBalance().get(coinSymbol);
 
-            if(value > 0.0){
+            if(totalCoinVal > 0.0 && amountCoin <= totalCoinVal){
+
                 transaction = new Transaction(id, seller, buyer, coinSymbol, amountDollar, amountCoin);
 
                 OrderBook orderBook = getOrderBook();

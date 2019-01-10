@@ -13,6 +13,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -144,17 +145,22 @@ class UserInfoRestController {
     @RequestMapping("/loginUser")
     public ResponseEntity loginUser(@RequestParam(value = "userName") String userName) {
 
-        try {
-            UserInfo.Builder userInfoBuilder = new UserInfo.Builder();
-            userInfoBuilder.userName(userName)
-                    .loggedIn(true)
-                    .account(new Account.Builder().initBalance().updateCoin("Dollars",10000).build());
-            userInfoRepository.save(userInfoBuilder.build());
-            return ResponseEntity.accepted().build();
+        UserInfo user = userInfoRepository.findByUserName(userName);
+        if(user.getUserName()==null){
+            try {
+                UserInfo.Builder userInfoBuilder = new UserInfo.Builder();
+                userInfoBuilder.userName(userName)
+                        .loggedIn(true)
+                        .account(new Account.Builder().initBalance().updateCoin("Dollars",10000).build());
+                userInfoRepository.save(userInfoBuilder.build());
+                return ResponseEntity.accepted().build();
             } catch (Exception e) {
                 e.printStackTrace();
                 return ResponseEntity.badRequest().build();
             }
+        }else{
+            return ResponseEntity.accepted().build();
+        }
 
     }
 
