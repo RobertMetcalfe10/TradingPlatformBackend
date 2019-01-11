@@ -2,6 +2,7 @@ package com.tradingPlatform;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.tradingPlatform.Repositories.CMCRepository;
 import com.tradingPlatform.DataObjects.CoinInfo;
 import com.tradingPlatform.DataObjects.LatestCoinInfos;
 import org.jsoup.Connection;

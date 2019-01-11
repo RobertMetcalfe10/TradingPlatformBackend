@@ -1,4 +1,4 @@
-package com.tradingPlatform;
+package com.tradingPlatform.Repositories;
 
 import com.tradingPlatform.DataObjects.CoinInfo;
 import org.springframework.data.mongodb.repository.MongoRepository;

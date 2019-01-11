@@ -19,7 +19,6 @@ public class OrderBook implements Serializable {
 
     }
 
-
     public void addTransaction(Transaction transaction){
         this.sortedTransactions.add(transaction);
     }

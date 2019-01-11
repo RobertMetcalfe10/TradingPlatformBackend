@@ -4,6 +4,8 @@ import com.google.gson.*;
 import com.tradingPlatform.DataObjects.OrderBook;
 import com.tradingPlatform.DataObjects.Transaction;
 import com.tradingPlatform.DataObjects.UserInfo;
+import com.tradingPlatform.Repositories.OrderBookRepository;
+import com.tradingPlatform.Repositories.UserInfoRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;

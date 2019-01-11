@@ -3,10 +3,13 @@ package com.tradingPlatform;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.tradingPlatform.Repositories.CMCRepository;
 import com.tradingPlatform.DataObjects.Account;
 import com.tradingPlatform.DataObjects.OrderBook;
 import com.tradingPlatform.DataObjects.Transaction;
 import com.tradingPlatform.DataObjects.UserInfo;
+import com.tradingPlatform.Repositories.OrderBookRepository;
+import com.tradingPlatform.Repositories.UserInfoRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -57,15 +60,22 @@ class UserInfoRestController {
         String userName = requestParams.get("userName");
         String symbol = requestParams.get("symbol");
         UserInfo userInfo = userInfoRepository.findByUserName(userName);
-
-        return userInfo.getAccount().getCurrentBalance().get(symbol).toString();
+        if(userInfo!=null) {
+            return userInfo.getAccount().getCurrentBalance().get(symbol).toString();
+        }else{
+            return "";
+        }
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping("/totalBalance")
     public String getTotalBalance(@RequestParam(value = "userName") String userName) {
         UserInfo userInfo = userInfoRepository.findByUserName(userName);
-        return Double.toString(userInfo.getAccount().getCurrentBalance().get("Dollars"));
+        if(userInfo!=null) {
+            return Double.toString(userInfo.getAccount().getCurrentBalance().get("Dollars"));
+        }else{
+            return "";
+        }
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
@@ -103,7 +113,6 @@ class UserInfoRestController {
                 if (!buyerAcc.getUserName().equals(sellerAcc.getUserName())) {
 
                     sellerAcc.getAccount().addTransaction(transaction);
-                    sellerAcc.getAccount().removeFromBalanceOfCoin(coinSymbol, amountCoin);
                     sellerAcc.getAccount().changeBalanceForSeller(amountDollar);
                     userInfoRepository.save(sellerAcc);
 
@@ -138,9 +147,8 @@ class UserInfoRestController {
     @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping("/loginUser")
     public ResponseEntity loginUser(@RequestParam(value = "userName") String userName) {
-
         UserInfo user = userInfoRepository.findByUserName(userName);
-        if(user.getUserName()==null){
+        if(user==null){
             try {
                 UserInfo.Builder userInfoBuilder = new UserInfo.Builder();
                 userInfoBuilder.userName(userName)
@@ -155,7 +163,6 @@ class UserInfoRestController {
         }else{
             return ResponseEntity.accepted().build();
         }
-
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
