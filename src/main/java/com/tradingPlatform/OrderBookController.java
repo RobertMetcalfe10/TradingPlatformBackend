@@ -84,6 +84,9 @@ class OrderBookRestController {
                 orderBook.addTransaction(transaction);
                 orderBookRepository.save(orderBook);
 
+                sellerAcc.getAccount().removeFromBalanceOfCoin(coinSymbol, amountCoin);
+                userInfoRepository.save(sellerAcc);
+
                 return ResponseEntity.accepted().build();
             }
             else{

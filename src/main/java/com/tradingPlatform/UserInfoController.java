@@ -13,7 +13,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -66,16 +65,6 @@ class UserInfoRestController {
     @RequestMapping("/totalBalance")
     public String getTotalBalance(@RequestParam(value = "userName") String userName) {
         UserInfo userInfo = userInfoRepository.findByUserName(userName);
-//        double total = 0.0;
-//        for (Map.Entry<String, Double> coin : userInfo.getAccount().getCurrentBalance().entrySet()) {
-//            if (coin.getKey().equals("Dollars")) {
-//                total += coin.getValue();
-//            } else {
-//                double price = cmcRepository.findBySymbol(coin.getKey()).getPrice();
-//                total += price * coin.getValue();
-//            }
-//        }
-
         return Double.toString(userInfo.getAccount().getCurrentBalance().get("Dollars"));
     }
 
@@ -123,6 +112,11 @@ class UserInfoRestController {
                     buyerAcc.getAccount().changeBalanceForBuyer(amountDollar);
                     userInfoRepository.save(buyerAcc);
 
+                }
+
+                if(buyerAcc.getUserName().equals(sellerAcc.getUserName())){
+                    buyerAcc.getAccount().addToBalanceOfCoin(coinSymbol, amountCoin);
+                    userInfoRepository.save(buyerAcc);
                 }
 
                 List<OrderBook> orderBook = orderBookRepository.findAll();
