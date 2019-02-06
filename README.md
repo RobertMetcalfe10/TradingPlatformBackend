@@ -1,3 +1,5 @@
+# Trading Platform
+
 ##To run backend:
 
 First install MongoDB, on Windows use chocolately "choco install mongodb " or on Mac use homebrew "brew install MongoDB". 
